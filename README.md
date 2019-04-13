@@ -1,0 +1,1 @@
+A silly tool for visualizing ICMP ping latency
