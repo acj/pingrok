@@ -1,87 +1,87 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"strconv"
-	"strings"
 )
 
 // Example usage:
-// $ sudo ping -i 0.01 -t 5 192.168.1.1 | ts -s '[%.s]' | sed -l -n -e 's/\[\(.*\)\].*time=\(.*\) ms/\1 \2/p' | ./ping-heatmap > data.json
+// $ sudo ping -i 0.1 -W 100 192.168.1.1 | ts -s '[%.s]' | sed -l -n -e 's/\[\(.*\)\].*time=\(.*\) ms/\1 \2/p' | go run .
+
+// TODO:
+// - Expose as a self-contained webserver. Vendor the js dependencies, etc.
+// - Automatically update the heatmap
+
+// Maybe:
+// * Try using std lib stuff: https://godoc.org/golang.org/x/net/icmp#example-PacketConn--NonPrivilegedPing
+// * Send ICMP echo on the interval
+// * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
+
+type Reply struct {
+	TimeOffset float64
+	Latency    float64
+}
+
+func (r *Reply) string() string {
+	return fmt.Sprintf("offset: %f; latency: %f", r.TimeOffset, r.Latency)
+}
+
+func discretizeReplies(samplesPerSecond int, in <-chan Reply, out chan<- []Reply) {
+	// Assumption: inbound replies are ordered by time
+	currentAccumulatorSecondOffset := 0
+	timeQuantum := 1.0 / float64(samplesPerSecond)
+	currentSlice := make([]Reply, samplesPerSecond, samplesPerSecond)
+
+	for r := range in {
+		currentSecond := int(r.TimeOffset)
+		if currentAccumulatorSecondOffset != currentSecond {
+			out<- currentSlice
+			currentSlice = make([]Reply, samplesPerSecond, samplesPerSecond)
+			currentAccumulatorSecondOffset = currentSecond
+		}
+
+		currentSubsecondOffset := r.TimeOffset - float64(int(r.TimeOffset))
+		currentSlice[int(currentSubsecondOffset / timeQuantum)] = r
+	}
+}
 
 func main() {
 	// TODO: Accept a duration flag
 
-	timestamps := make([]string, 0)
-	latenciesMs := make([]string, 0)
+	timeWindow := 30
+	samplesPerSecond := 10
 
-	c := make(chan os.Signal, 1)
+	jsonFilename := "data.json"
+	jsonFile, err := os.Create(jsonFilename)
+	if err != nil {
+		log.Fatalf("couldn't open file '%s': %v", jsonFilename, err)
+	}
 
-	go func () {
-		fmt.Fprintln(os.Stderr, "Up and running")
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			tokens := strings.Split(scanner.Text(), " ")
-			timestamps = append(timestamps, tokens[0])
-			latenciesMs = append(latenciesMs, tokens[1])
+	parser := NewParser(os.Stdin)
+	discretizedReplies := make(chan []Reply)
+	go discretizeReplies(samplesPerSecond, parser.Next, discretizedReplies)
+
+	formatter := Formatter{
+		w: jsonFile,
+		timeWindow: timeWindow,
+		samplesPerSecond: samplesPerSecond,
+	}
+	timeSeriesData := NewCircularBuffer(timeWindow*samplesPerSecond)
+
+	for oneSecondOfData := range discretizedReplies {
+		if _, err := jsonFile.Seek(0, 0); err != nil {
+			log.Fatalf("seek error: %v", err)
 		}
-		if err := scanner.Err(); err != nil {
-			fmt.Fprintln(os.Stderr, "reading standard input:", err)
+
+		for _, r := range oneSecondOfData {
+			timeSeriesData.Insert(r)
 		}
 
-		fmt.Fprintln(os.Stderr, "Done with loop")
-		c<- os.Interrupt
-	}()
-
-	signal.Notify(c, os.Interrupt)
-	<-c
-	fmt.Fprintln(os.Stderr, "Assembling heatmap data...")
+		formatter.formatDataAsJSON(timeSeriesData.Snapshot())
+	}
 
 	if err := os.Stdin.Close(); err != nil {
 		log.Fatalf("stdin: %v", err)
 	}
-
-	fmt.Println("{")
-
-	rows := make([]string, 100)
-	for i := 0; i < 100; i++ {
-		rows[i] = strconv.Itoa(i)
-	}
-
-	rowsJson := strings.Join(rows, ",")
-	fmt.Printf("\t\"rows\": [%s],\n", rowsJson)
-
-
-	columns := make([]string, len(timestamps)/100 + 1)
-	for i := 0; i < len(columns); i++ {
-		columns[i] = strconv.Itoa(i)
-	}
-	columnsJson := strings.Join(columns, ",")
-	fmt.Printf("\t\"columns\": [%s],\n", columnsJson)
-
-	fmt.Print("\t\"values\": [")
-
-	for i := 0; i < len(columns); i++ {
-		var vals []string
-		if (i+1) * 100 < len(latenciesMs) {
-			vals = latenciesMs[i*100:(i+1)*100]
-		} else {
-			vals = latenciesMs[i*100:]
-		}
-		fmt.Printf("\t[%s]", strings.Join(vals, ","))
-
-		if len(vals) == 100 {
-			fmt.Println(",")
-		}
-
-		fmt.Print("\n")
-	}
-
-	fmt.Print("\t]")
-
-	fmt.Println("}")
 }
