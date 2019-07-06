@@ -9,12 +9,12 @@ import (
 )
 
 type Server struct {
-	formatter *Formatter
-	router *mux.Router
-	httpServer *http.Server
-	replyCircularBuffer *Buffer
-	timeWindow int
-	samplesPerSecond int
+	formatter                   *Formatter
+	router                      *mux.Router
+	httpServer                  *http.Server
+	latencyReportCircularBuffer *Buffer
+	timeWindow                  int
+	samplesPerSecond            int
 }
 
 func NewServer(timeWindow int, samplesPerSecond int) *Server {
@@ -31,9 +31,9 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 			ReadTimeout:  15 * time.Second,
 			Handler: router,
 		},
-		replyCircularBuffer: NewCircularBuffer(timeWindow*samplesPerSecond),
-		timeWindow: timeWindow,
-		samplesPerSecond: samplesPerSecond,
+		latencyReportCircularBuffer: NewCircularBuffer(timeWindow*samplesPerSecond),
+		timeWindow:                  timeWindow,
+		samplesPerSecond:            samplesPerSecond,
 	}
 
 	router.HandleFunc("/data.json", s.dataSnapshotHandler)
@@ -43,8 +43,8 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 }
 
 func (s *Server) Serve(address string) {
-	replies := make(chan Reply)
-	discretizedReplies := make(chan []Reply)
+	replies := make(chan LatencyReport)
+	discretizedReplies := make(chan []LatencyReport)
 
 	pinger := NewPinger(replies)
 	pinger.Start()
@@ -62,17 +62,17 @@ func (s *Server) Shutdown(ctx context.Context) {
 	s.httpServer.Shutdown(ctx)
 }
 
-func discretizeReplies(samplesPerSecond int, in <-chan Reply, out chan<- []Reply) {
-	// Assumption: inbound replies are ordered by time
+func discretizeReplies(samplesPerSecond int, in <-chan LatencyReport, out chan<- []LatencyReport) {
+	// Assumption: inbound latencyReports are ordered by time
 	currentAccumulatorSecondOffset := 0
 	timeQuantum := 1.0 / float64(samplesPerSecond)
-	currentSlice := make([]Reply, samplesPerSecond, samplesPerSecond)
+	currentSlice := make([]LatencyReport, samplesPerSecond, samplesPerSecond)
 
 	for r := range in {
 		currentSecond := int(r.TimeOffset)
 		if currentAccumulatorSecondOffset != currentSecond {
 			out<- currentSlice
-			currentSlice = make([]Reply, samplesPerSecond, samplesPerSecond)
+			currentSlice = make([]LatencyReport, samplesPerSecond, samplesPerSecond)
 			currentAccumulatorSecondOffset = currentSecond
 		}
 
@@ -81,10 +81,10 @@ func discretizeReplies(samplesPerSecond int, in <-chan Reply, out chan<- []Reply
 	}
 }
 
-func (s *Server) addToCircularBuffer(replies chan []Reply) {
+func (s *Server) addToCircularBuffer(replies chan []LatencyReport) {
 	for oneSecondOfData := range replies {
 		for _, r := range oneSecondOfData {
-			s.replyCircularBuffer.Insert(r)
+			s.latencyReportCircularBuffer.Insert(r)
 		}
 	}
 }

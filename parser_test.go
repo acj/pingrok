@@ -23,17 +23,17 @@ func TestParser_handlesSingleLineWithoutLineBreak(t *testing.T) {
 
 	haveReceivedReply := false
 
-	for reply := range p.Next {
+	for report := range p.Next {
 		if haveReceivedReply {
-			t.Errorf("had already received a reply when I saw this: %v", reply)
+			t.Errorf("had already received a report when I saw this: %v", report)
 		}
 		haveReceivedReply = true
 
-		if reply.TimeOffset != expectedTime {
-			t.Errorf("incorrect time: wanted %f, got %f", expectedTime, reply.TimeOffset)
+		if report.TimeOffset != expectedTime {
+			t.Errorf("incorrect time: wanted %f, got %f", expectedTime, report.TimeOffset)
 		}
-		if reply.Latency != expectedLatency {
-			t.Errorf("incorrect latency: wanted %f, got %f", expectedLatency, reply.Latency)
+		if report.Latency != expectedLatency {
+			t.Errorf("incorrect latency: wanted %f, got %f", expectedLatency, report.Latency)
 		}
 	}
 }
@@ -46,17 +46,17 @@ func TestParser_handlesSingleLineWithLineBreak(t *testing.T) {
 
 	haveReceivedReply := false
 
-	for reply := range p.Next {
+	for report := range p.Next {
 		if haveReceivedReply {
-			t.Errorf("had already received a reply when I saw this: %v", reply)
+			t.Errorf("had already received a report when I saw this: %v", report)
 		}
 		haveReceivedReply = true
 
-		if reply.TimeOffset != expectedTime {
-			t.Errorf("incorrect time: wanted %f, got %f", expectedTime, reply.TimeOffset)
+		if report.TimeOffset != expectedTime {
+			t.Errorf("incorrect time: wanted %f, got %f", expectedTime, report.TimeOffset)
 		}
-		if reply.Latency != expectedLatency {
-			t.Errorf("incorrect latency: wanted %f, got %f", expectedLatency, reply.Latency)
+		if report.Latency != expectedLatency {
+			t.Errorf("incorrect latency: wanted %f, got %f", expectedLatency, report.Latency)
 		}
 	}
 }
@@ -65,7 +65,7 @@ func TestParser_handlesMultipleLines(t *testing.T) {
 	input := "0.050760 7.373\n0.058287 4.277\n0.071051 5.429\n0.078683 3.043"
 	reader := strings.NewReader(input)
 
-	outputs := []Reply{
+	outputs := []LatencyReport{
 		{TimeOffset: 0.050760, Latency: 7.373},
 		{TimeOffset: 0.058287, Latency: 4.277},
 		{TimeOffset: 0.071051, Latency: 5.429},
@@ -76,11 +76,11 @@ func TestParser_handlesMultipleLines(t *testing.T) {
 
 	for index, output := range outputs {
 		if index >= len(outputs) {
-			t.Errorf("had already received all the expected replies when I saw this: %v", output)
+			t.Errorf("had already received all the expected latencyReports when I saw this: %v", output)
 		}
-		candidateReply := <-p.Next
-		if candidateReply != output {
-			t.Errorf("reply mismatch: expected %v, got %v", output, candidateReply)
+		candidateReport := <-p.Next
+		if candidateReport != output {
+			t.Errorf("reply mismatch: expected %v, got %v", output, candidateReport)
 		}
 	}
 }

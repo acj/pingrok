@@ -10,12 +10,12 @@ import (
 )
 
 type Parser struct {
-	Next chan Reply
+	Next chan LatencyReport
 }
 
 func NewParser(r io.Reader) *Parser {
 	p := &Parser{
-		Next: make(chan Reply, 100),
+		Next: make(chan LatencyReport, 100),
 	}
 
 	go func () {
@@ -33,7 +33,7 @@ func NewParser(r io.Reader) *Parser {
 				fmt.Printf("latency parse error for '%s': %v", tokens[1], err)
 			}
 
-			p.Next<- Reply{offset, latency}
+			p.Next<- LatencyReport{offset, latency}
 		}
 
 		if err := scanner.Err(); err != nil {

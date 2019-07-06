@@ -12,7 +12,7 @@ type Formatter struct {
 	samplesPerSecond int
 }
 
-func (f Formatter) writeDataAsJSON(replies []Reply, w io.Writer) {
+func (f Formatter) writeDataAsJSON(dataPoints []LatencyReport, w io.Writer) {
 	fmt.Fprintln(w, "{")
 
 	rows := make([]string, f.samplesPerSecond)
@@ -33,10 +33,10 @@ func (f Formatter) writeDataAsJSON(replies []Reply, w io.Writer) {
 	fmt.Fprint(w, "\t\"values\": [")
 
 	for i := 0; i < f.timeWindow; i++ {
-		var vals = replies[i*f.samplesPerSecond : (i+1)*f.samplesPerSecond]
+		var vals = dataPoints[i*f.samplesPerSecond : (i+1)*f.samplesPerSecond]
 		latencies := make([]string, len(vals), len(vals))
 		for j := 0; j < len(vals); j++ {
-			latencies[j] = fmt.Sprintf("%f", replies[i*f.samplesPerSecond + j].Latency)
+			latencies[j] = fmt.Sprintf("%f", dataPoints[i*f.samplesPerSecond + j].Latency)
 		}
 		fmt.Fprintf(w, "\t[%s]", strings.Join(latencies, ","))
 

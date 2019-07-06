@@ -13,7 +13,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 		samplesPerSecond int
 	}
 	type args struct {
-		replies       []Reply
+		latencyReports []LatencyReport
 	}
 	tests := []struct {
 		name   string
@@ -28,7 +28,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				0,
 			},
 			args{
-				[]Reply{},
+				[]LatencyReport{},
 			},
 			`{"rows": [],"columns": [],"values": []}`,
 		},
@@ -39,7 +39,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				10,
 			},
 			args{
-				[]Reply{
+				[]LatencyReport{
 					{TimeOffset: 0.050760, Latency: 7.373},
 					{TimeOffset: 0.125935, Latency: 5.189},
 					{TimeOffset: 0.201725, Latency: 2.886},
@@ -61,7 +61,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				10,
 			},
 			args{
-				[]Reply{
+				[]LatencyReport{
 					{TimeOffset: 0.050760, Latency: 7.373},
 					{TimeOffset: 0.125935, Latency: 5.189},
 					{TimeOffset: 0.201725, Latency: 2.886},
@@ -95,7 +95,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				timeWindow:       tt.fields.timeWindow,
 				samplesPerSecond: tt.fields.samplesPerSecond,
 			}
-			f.writeDataAsJSON(tt.args.replies, buf)
+			f.writeDataAsJSON(tt.args.latencyReports, buf)
 
 			rawFormattedOutput, _ := ioutil.ReadAll(buf)
 			formattedOutput := string(rawFormattedOutput)
