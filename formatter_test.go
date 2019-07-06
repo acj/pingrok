@@ -7,9 +7,8 @@ import (
 	"testing"
 )
 
-func TestFormatter_formatDataAsJSON(t *testing.T) {
+func TestFormatter_writeDataAsJSON(t *testing.T) {
 	type fields struct {
-		w                *bytes.Buffer
 		timeWindow       int
 		samplesPerSecond int
 	}
@@ -25,7 +24,6 @@ func TestFormatter_formatDataAsJSON(t *testing.T) {
 		{
 			"empty list",
 			fields{
-				&bytes.Buffer{},
 				0,
 				0,
 			},
@@ -37,7 +35,6 @@ func TestFormatter_formatDataAsJSON(t *testing.T) {
 		{
 			"one second",
 			fields{
-				&bytes.Buffer{},
 				1,
 				10,
 			},
@@ -60,7 +57,6 @@ func TestFormatter_formatDataAsJSON(t *testing.T) {
 		{
 			"two seconds",
 			fields{
-				&bytes.Buffer{},
 				2,
 				10,
 			},
@@ -93,14 +89,15 @@ func TestFormatter_formatDataAsJSON(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			buf := &bytes.Buffer{}
+
 			f := Formatter{
-				w:                tt.fields.w,
 				timeWindow:       tt.fields.timeWindow,
 				samplesPerSecond: tt.fields.samplesPerSecond,
 			}
-			f.formatDataAsJSON(tt.args.replies)
+			f.writeDataAsJSON(tt.args.replies, buf)
 
-			rawFormattedOutput, _ := ioutil.ReadAll(tt.fields.w)
+			rawFormattedOutput, _ := ioutil.ReadAll(buf)
 			formattedOutput := string(rawFormattedOutput)
 			formattedOutput = strings.ReplaceAll(formattedOutput, "\n", "")
 			formattedOutput = strings.ReplaceAll(formattedOutput, "\t", "")

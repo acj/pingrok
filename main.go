@@ -1,87 +1,37 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
-// Example usage:
-// $ sudo ping -i 0.1 -W 100 192.168.1.1 | ts -s '[%.s]' | sed -l -n -e 's/\[\(.*\)\].*time=\(.*\) ms/\1 \2/p' | go run .
-
 // TODO:
-// - Expose as a self-contained webserver. Vendor the js dependencies, etc.
 // - Automatically update the heatmap
 
 // Maybe:
 // * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
 
-type Reply struct {
-	TimeOffset float64
-	Latency    float64
-}
-
-func (r *Reply) string() string {
-	return fmt.Sprintf("offset: %f; latency: %f", r.TimeOffset, r.Latency)
-}
-
-func discretizeReplies(samplesPerSecond int, in <-chan Reply, out chan<- []Reply) {
-	// Assumption: inbound replies are ordered by time
-	currentAccumulatorSecondOffset := 0
-	timeQuantum := 1.0 / float64(samplesPerSecond)
-	currentSlice := make([]Reply, samplesPerSecond, samplesPerSecond)
-
-	for r := range in {
-		currentSecond := int(r.TimeOffset)
-		if currentAccumulatorSecondOffset != currentSecond {
-			out<- currentSlice
-			currentSlice = make([]Reply, samplesPerSecond, samplesPerSecond)
-			currentAccumulatorSecondOffset = currentSecond
-		}
-
-		currentSubsecondOffset := r.TimeOffset - float64(int(r.TimeOffset))
-		currentSlice[int(currentSubsecondOffset / timeQuantum)] = r
-	}
-}
-
 func main() {
-	// TODO: Accept a duration flag
+	// TODO:
+	// - time window flag
+	// - samples per second flag
+	// - host/port flag
 
-	timeWindow := 30
-	samplesPerSecond := 10
+	bind := "0.0.0.0:8086"
 
-	jsonFilename := "data.json"
-	jsonFile, err := os.Create(jsonFilename)
-	if err != nil {
-		log.Fatalf("couldn't open file '%s': %v", jsonFilename, err)
-	}
+	server := NewServer(30, 20)
+	go server.Serve(bind)
 
-	replies := make(chan Reply, 2000)
-	pinger := NewPinger(replies)
-	discretizedReplies := make(chan []Reply)
-	go discretizeReplies(samplesPerSecond, replies, discretizedReplies)
-	pinger.Start()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	<-c
 
-	formatter := Formatter{
-		w: jsonFile,
-		timeWindow: timeWindow,
-		samplesPerSecond: samplesPerSecond,
-	}
-	timeSeriesData := NewCircularBuffer(timeWindow*samplesPerSecond)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	server.Shutdown(ctx)
 
-	for oneSecondOfData := range discretizedReplies {
-		if _, err := jsonFile.Seek(0, 0); err != nil {
-			log.Fatalf("seek error: %v", err)
-		}
-
-		for _, r := range oneSecondOfData {
-			timeSeriesData.Insert(r)
-		}
-
-		formatter.formatDataAsJSON(timeSeriesData.Snapshot())
-	}
-
-	if err := os.Stdin.Close(); err != nil {
-		log.Fatalf("stdin: %v", err)
-	}
+	os.Exit(0)
 }

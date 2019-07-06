@@ -104,7 +104,7 @@
 			}
 		}
 
-		d3.json("data.json", function(error, data) {
+		d3.json("/data.json", function(error, data) {
 			if (error) return console.warn(error)
 			function onClick(d, i, j) {
 				console.info("Clicked on range " + data.rows[j] + ", time " + data.columns[i] + ", count " + d)
