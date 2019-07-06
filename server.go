@@ -44,10 +44,11 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 
 func (s *Server) Serve(address string) {
 	replies := make(chan Reply)
+	discretizedReplies := make(chan []Reply)
+
 	pinger := NewPinger(replies)
 	pinger.Start()
 
-	discretizedReplies := make(chan []Reply)
 	go discretizeReplies(s.samplesPerSecond, replies, discretizedReplies)
 	go s.addToCircularBuffer(discretizedReplies)
 
