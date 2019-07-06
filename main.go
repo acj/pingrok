@@ -14,8 +14,6 @@ import (
 // - Automatically update the heatmap
 
 // Maybe:
-// * Try using std lib stuff: https://godoc.org/golang.org/x/net/icmp#example-PacketConn--NonPrivilegedPing
-// * Send ICMP echo on the interval
 // * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
 
 type Reply struct {
@@ -58,9 +56,11 @@ func main() {
 		log.Fatalf("couldn't open file '%s': %v", jsonFilename, err)
 	}
 
-	parser := NewParser(os.Stdin)
+	replies := make(chan Reply, 2000)
+	pinger := NewPinger(replies)
 	discretizedReplies := make(chan []Reply)
-	go discretizeReplies(samplesPerSecond, parser.Next, discretizedReplies)
+	go discretizeReplies(samplesPerSecond, replies, discretizedReplies)
+	pinger.Start()
 
 	formatter := Formatter{
 		w: jsonFile,
