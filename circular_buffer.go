@@ -4,19 +4,19 @@ import (
 	"log"
 )
 
-type Buffer struct {
+type CircularBuffer struct {
 	buf []LatencyReport
 	currentOffset int
 	saturated bool
 }
 
-func NewCircularBuffer(size int) *Buffer {
-	return &Buffer{
+func NewCircularBuffer(size int) *CircularBuffer {
+	return &CircularBuffer{
 		buf: make([]LatencyReport, size, size),
 	}
 }
 
-func (b *Buffer) Snapshot() []LatencyReport {
+func (b *CircularBuffer) Snapshot() []LatencyReport {
 	snap := make([]LatencyReport, len(b.buf))
 
 	if b.saturated {
@@ -37,7 +37,7 @@ func (b *Buffer) Snapshot() []LatencyReport {
 	return snap
 }
 
-func (b *Buffer) Insert(value LatencyReport) {
+func (b *CircularBuffer) Insert(value LatencyReport) {
 	b.buf[b.currentOffset] = value
 	//log.Printf("offset is now (%d + 1) %% %d = %d", b.currentOffset, len(b.buf), (b.currentOffset + 1) % len(b.buf))
 	b.currentOffset = (b.currentOffset + 1) % len(b.buf)
@@ -47,6 +47,6 @@ func (b *Buffer) Insert(value LatencyReport) {
 	}
 }
 
-func (b *Buffer) Size() int {
+func (b *CircularBuffer) Size() int {
 	return len(b.buf)
 }

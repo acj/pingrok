@@ -12,7 +12,7 @@ type Server struct {
 	formatter                   *Formatter
 	router                      *mux.Router
 	httpServer                  *http.Server
-	latencyReportCircularBuffer *Buffer
+	latencyReportCircularBuffer *CircularBuffer
 	timeWindow                  int
 	samplesPerSecond            int
 }
