@@ -69,7 +69,7 @@ func (p *Pinger) producer(destinationIP string, interval time.Duration) {
 
 		p.messagesInFlight.Start(body.Seq)
 		if _, err := p.connection.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(destinationIP)}); err != nil {
-			log.Fatal(err)
+			log.Printf("error sending echo request: %v", err)
 		}
 
 		body.Seq++
