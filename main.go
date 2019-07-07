@@ -10,9 +10,9 @@ import (
 )
 
 // TODO:
-
-// Maybe:
 // * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
+// * Create an interface that decouples the display engine from ping
+// * Create a generator that oscillates smoothly between 0 and some known latency -- good for end-to-end testing
 
 func main() {
 	var timeWindow = flag.Int("t", 30, "seconds of data to display")
