@@ -64,86 +64,98 @@
 
 	<script>
 		var chart = null
-		var selectStart = null
-		var selectEnd = null
 
-		function select(cell) {
-			if (!selectStart) {
-				selectStart = cell
-				chart.setHighlight([{"start": selectStart, "end": selectStart}])
-				chart.updateHighlight()
-			} else if (!selectEnd) {
-				selectEnd = cell
-				chart.setHighlight([{"start": selectStart, "end": selectEnd}])
-				chart.updateHighlight()
-			} else {
-				selectStart = cell
-				selectEnd = null
-				chart.setHighlight([{"start": selectStart, "end": selectStart}])
-				chart.updateHighlight()
+		function setUpChart() {
+			if (chart) {
+				d3.select("#chart").select("svg").remove()
 			}
-		}
 
-		function hover(cell) {
-			if (selectStart && !selectEnd) {
-				if (cell[0] > selectStart[0]) { // column is higher
-					chart.setHighlight([{"start": selectStart, "end": cell}])
+			var selectStart = null
+			var selectEnd = null
+
+			function select(cell) {
+				if (!selectStart) {
+					selectStart = cell
+					chart.setHighlight([{"start": selectStart, "end": selectStart}])
 					chart.updateHighlight()
-				} else if (cell[0] = selectStart[0]) { // same column
-					if (cell[1] >= selectStart[1]) { // row is higher or equal
-						chart.setHighlight([{"start": selectStart, "end": cell}])
-						chart.updateHighlight()
-					} else {
-						chart.setHighlight([{"start": selectStart, "end": selectStart}])
-						chart.updateHighlight()
-					}
+				} else if (!selectEnd) {
+					selectEnd = cell
+					chart.setHighlight([{"start": selectStart, "end": selectEnd}])
+					chart.updateHighlight()
 				} else {
+					selectStart = cell
+					selectEnd = null
 					chart.setHighlight([{"start": selectStart, "end": selectStart}])
 					chart.updateHighlight()
 				}
 			}
+
+			function hover(cell) {
+				if (selectStart && !selectEnd) {
+					if (cell[0] > selectStart[0]) { // column is higher
+						chart.setHighlight([{"start": selectStart, "end": cell}])
+						chart.updateHighlight()
+					} else if (cell[0] = selectStart[0]) { // same column
+						if (cell[1] >= selectStart[1]) { // row is higher or equal
+							chart.setHighlight([{"start": selectStart, "end": cell}])
+							chart.updateHighlight()
+						} else {
+							chart.setHighlight([{"start": selectStart, "end": selectStart}])
+							chart.updateHighlight()
+						}
+					} else {
+						chart.setHighlight([{"start": selectStart, "end": selectStart}])
+						chart.updateHighlight()
+					}
+				}
+			}
+
+			d3.json("/data.json", function (error, data) {
+				if (error) return console.warn(error)
+
+				function onClick(d, i, j) {
+					console.info("Clicked on range " + data.rows[j] + ", time " + data.columns[i] + ", count " + d)
+					select([i, j])
+				}
+
+				function onMouseOver(d, i, j) {
+					document.getElementById("details").innerHTML = "time: " + data.columns[i] + ", range: " + data.rows[j] + ", latency: " + d
+					hover([i, j])
+				}
+
+				chart = d3.heatmap()
+						.title("Latency (ms)")
+						.subtitle("")
+						// .legendLabel("Latency (ms)")
+						.width(900)
+						.xAxisScaleTicks(data.columns.length/5)
+						.yAxisScaleTicks(4)
+						.xAxisScale([0, data.columns.length])
+						.yAxisScale([0, 1000])
+						// .xAxisLabels(data.columns)
+						// .yAxisLabels(data.rows)
+						.highlightColor('#936EB5')
+						.highlightOpacity('0.4')
+						.onClick(onClick)
+						.onMouseOver(onMouseOver)
+						.colorScale(d3.scaleLinear()
+								.domain([0, 65 / 2, 65])
+								.range(['#F5F5DC', '#FF5032', '#E50914'])
+						)
+						.margin({
+							top: 40,
+							right: 0,
+							bottom: 10,
+							left: -20
+						})
+
+				d3.select("#chart")
+						.datum(data.values)
+						.call(chart)
+			})
 		}
 
-		d3.json("/data.json", function(error, data) {
-			if (error) return console.warn(error)
-			function onClick(d, i, j) {
-				console.info("Clicked on range " + data.rows[j] + ", time " + data.columns[i] + ", count " + d)
-				select([i, j])
-			}
-
-			function onMouseOver(d, i, j) {
-				document.getElementById("details").innerHTML = "time: " + data.columns[i] + ", range: " + data.rows[j] + ", latency: " + d
-				hover([i, j])
-			}
-		
-			chart = d3.heatmap()
-				.title("")
-				.subtitle("")
-				.legendLabel("Latency (ms)")
-				.width(900)
-				.xAxisScale([0,data.columns.length])
-				.yAxisScale([0,data.rows.length])
-				// .xAxisLabels(data.columns)
-				// .yAxisLabels(data.rows)
-				.highlightColor('#936EB5')
-				.highlightOpacity('0.4')
-				.onClick(onClick)
-				.onMouseOver(onMouseOver)
-				.colorScale(d3.scaleLinear()
-					.domain([0, 65 / 2, 65])
-					.range(['#F5F5DC', '#FF5032', '#E50914'])
-				)
-				.margin({
-					top: 40,
-					right: 0,
-					bottom: 10,
-					left: -20
-				})
-				
-			d3.select("#chart")
-				.datum(data.values)
-				.call(chart)
-		})
+		window.setInterval(setUpChart, 1000);
 	</script>
 </body>
 </html>

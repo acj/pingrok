@@ -10,7 +10,6 @@ import (
 )
 
 // TODO:
-// - Automatically update the heatmap
 
 // Maybe:
 // * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
