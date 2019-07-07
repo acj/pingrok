@@ -34,8 +34,6 @@ func TestSnapshot_returnsCorrectSnapshotForSaturatedBuffer(t *testing.T) {
 
 	snap := b.Snapshot()
 
-	log.Printf("Buf: %v", b.buf)
-	log.Printf("Snap: %v", snap)
 	expected := LatencyReport{Latency: 2.0}
 	if snap[0] != expected {
 		t.Errorf("expected '%v' but got '%v'", expected, snap[0])
