@@ -39,7 +39,6 @@ func (b *CircularBuffer) Snapshot() []LatencyReport {
 
 func (b *CircularBuffer) Insert(value LatencyReport) {
 	b.buf[b.currentOffset] = value
-	//log.Printf("offset is now (%d + 1) %% %d = %d", b.currentOffset, len(b.buf), (b.currentOffset + 1) % len(b.buf))
 	b.currentOffset = (b.currentOffset + 1) % len(b.buf)
 
 	if b.currentOffset == 0 {
