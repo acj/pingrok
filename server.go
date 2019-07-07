@@ -42,11 +42,11 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 	return s
 }
 
-func (s *Server) Serve(address string) {
+func (s *Server) Serve(address string, targetHost string) {
 	replies := make(chan LatencyReport)
 	discretizedReplies := make(chan []LatencyReport)
 
-	pinger := NewPinger(replies)
+	pinger := NewPinger(targetHost, replies)
 	pinger.Start()
 
 	go discretizeReplies(s.samplesPerSecond, replies, discretizedReplies)

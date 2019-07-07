@@ -19,10 +19,12 @@ type Pinger struct {
 	replies chan LatencyReport
 	messagesInFlight *pendingEchos
 	startTime time.Time
+	targetHost string
 }
 
-func NewPinger(replies chan LatencyReport) *Pinger {
+func NewPinger(targetHost string, replies chan LatencyReport) *Pinger {
 	return &Pinger{
+		targetHost: targetHost,
 		replies: replies,
 	}
 }
@@ -39,7 +41,7 @@ func (p *Pinger) Start() {
 	}
 
 	go p.consumer()
-	go p.producer("192.168.1.1", 10*time.Millisecond)
+	go p.producer(p.targetHost, 10*time.Millisecond)
 }
 
 func (p *Pinger) Stop() {
