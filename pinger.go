@@ -101,7 +101,7 @@ func (p *Pinger) consumer() {
 				continue
 			}
 
-			timeOffset := candidateReceiptTime.Sub(p.startTime).Seconds()
+			timeOffset := echoRequestSentTime.Sub(p.startTime).Seconds()
 			latency := float64(candidateReceiptTime.Sub(echoRequestSentTime).Nanoseconds())/1e6
 			p.replies <- LatencyReport{TimeOffset: float64(timeOffset), Latency: float64(latency)}
 		default:
