@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"testing"
 )
 
@@ -40,15 +39,15 @@ func TestSnapshot_returnsCorrectSnapshotForSaturatedBuffer(t *testing.T) {
 	}
 	expected = LatencyReport{Latency: 3.0}
 	if snap[1] != expected {
-		t.Errorf("expected '%v' but got '%v'", expected, snap[0])
+		t.Errorf("expected '%v' but got '%v'", expected, snap[1])
 	}
 	expected = LatencyReport{Latency: 4.0}
 	if snap[2] != expected {
-		t.Errorf("expected '%v' but got '%v'", expected, snap[0])
+		t.Errorf("expected '%v' but got '%v'", expected, snap[2])
 	}
 	expected = LatencyReport{Latency: 5.0}
 	if snap[3] != expected {
-		t.Errorf("expected '%v' but got '%v'", expected, snap[0])
+		t.Errorf("expected '%v' but got '%v'", expected, snap[3])
 	}
 }
 
