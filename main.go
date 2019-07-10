@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,6 +24,9 @@ func main() {
 
 	server := NewServer(*timeWindow, *samplesPerSecond)
 	go server.Serve(*bindHost, *targetHost)
+
+	fmt.Printf("Up and running. Browse to http://%s\n", *bindHost)
+	fmt.Println("Control-C to quit")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
