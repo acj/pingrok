@@ -30,7 +30,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 			args{
 				[]LatencyReport{},
 			},
-			`{"rows": [],"columns": [],"values": []}`,
+			`[]`,
 		},
 		{
 			"one second",
@@ -52,7 +52,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 					{TimeOffset: 0.912460, Latency: 8.353},
 				},
 			},
-			`{"rows": [0,1,2,3,4,5,6,7,8,9],"columns": [0],"values": [[7.373000,5.189000,2.886000,4.348000,6.587000,2.953000,8.544000,3.726000,7.517000,8.353000]]}`,
+			`[{"offset": 0, "subsecond-offset": 0, "latency": 7.373000},{"offset": 0, "subsecond-offset": 100, "latency": 5.189000},{"offset": 0, "subsecond-offset": 200, "latency": 2.886000},{"offset": 0, "subsecond-offset": 300, "latency": 4.348000},{"offset": 0, "subsecond-offset": 400, "latency": 6.587000},{"offset": 0, "subsecond-offset": 500, "latency": 2.953000},{"offset": 0, "subsecond-offset": 600, "latency": 8.544000},{"offset": 0, "subsecond-offset": 700, "latency": 3.726000},{"offset": 0, "subsecond-offset": 800, "latency": 7.517000},{"offset": 0, "subsecond-offset": 900, "latency": 8.353000}]`,
 		},
 		{
 			"two seconds",
@@ -84,7 +84,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 					{TimeOffset: 0.912460, Latency: 9.353},
 				},
 			},
-			`{"rows": [0,1,2,3,4,5,6,7,8,9],"columns": [0,1],"values": [[7.373000,5.189000,2.886000,4.348000,6.587000,2.953000,8.544000,3.726000,7.517000,8.353000],[9.373000,9.189000,9.886000,9.348000,9.587000,9.953000,9.544000,9.726000,9.517000,9.353000]]}`,
+			`[{"offset": 0, "subsecond-offset": 0, "latency": 7.373000},{"offset": 0, "subsecond-offset": 100, "latency": 5.189000},{"offset": 0, "subsecond-offset": 200, "latency": 2.886000},{"offset": 0, "subsecond-offset": 300, "latency": 4.348000},{"offset": 0, "subsecond-offset": 400, "latency": 6.587000},{"offset": 0, "subsecond-offset": 500, "latency": 2.953000},{"offset": 0, "subsecond-offset": 600, "latency": 8.544000},{"offset": 0, "subsecond-offset": 700, "latency": 3.726000},{"offset": 0, "subsecond-offset": 800, "latency": 7.517000},{"offset": 0, "subsecond-offset": 900, "latency": 8.353000},{"offset": 1, "subsecond-offset": 0, "latency": 9.373000},{"offset": 1, "subsecond-offset": 100, "latency": 9.189000},{"offset": 1, "subsecond-offset": 200, "latency": 9.886000},{"offset": 1, "subsecond-offset": 300, "latency": 9.348000},{"offset": 1, "subsecond-offset": 400, "latency": 9.587000},{"offset": 1, "subsecond-offset": 500, "latency": 9.953000},{"offset": 1, "subsecond-offset": 600, "latency": 9.544000},{"offset": 1, "subsecond-offset": 700, "latency": 9.726000},{"offset": 1, "subsecond-offset": 800, "latency": 9.517000},{"offset": 1, "subsecond-offset": 900, "latency": 9.353000}]`,
 		},
 	}
 	for _, tt := range tests {
