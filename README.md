@@ -2,7 +2,8 @@
 
 A tool for creating subsecond offset heatmaps for ICMP echo (ping) replies
 
-![subsecond offset heatmap example](https://user-images.githubusercontent.com/27923/60774166-41490880-a0de-11e9-8824-47d42234f395.png)
+![subsecond offset heatmap example](https://user-images.githubusercontent.com/27923/65378522-7699d700-dc87-11e9-83fe-b0ebd0c3251d.png)
+
 
 ## Building
 
