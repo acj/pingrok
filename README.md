@@ -25,4 +25,4 @@ Usage of ./ping-heatmap:
         seconds of data to display (default 30)
 ```
 
-Once the program is running, point your browser at http://0.0.0.0:8086 (or whatever you've configured via `-h`).
+Once the program is running, point your browser at http://0.0.0.0:8086 (or whatever you've configured via `-s`).
