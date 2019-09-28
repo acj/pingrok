@@ -51,11 +51,13 @@
 						.range([ 0, width ])
 						.domain(myGroups)
 						.padding(0.05);
-				svg.append("g")
-					.style("font-size", 15)
-					.attr("transform", "translate(0, " + height + ")")
-					.call(d3.axisBottom(x).tickSize(0))
-					.select(".domain").remove()
+
+        // Uncomment to show x-axis labels:
+				//svg.append("g")
+				// 	.style("font-size", 15)
+				// 	.attr("transform", "translate(0, " + height + ")")
+				// 	.call(d3.axisBottom(x).tickSize(0))
+				// 	.select(".domain").remove()
 
 				let y = d3.scaleBand()
 						.range([ height, 0 ])
