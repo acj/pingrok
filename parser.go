@@ -18,7 +18,7 @@ func NewParser(r io.Reader) *Parser {
 		Next: make(chan LatencyDataPoint, 100),
 	}
 
-	go func () {
+	go func() {
 		defer close(p.Next)
 
 		scanner := bufio.NewScanner(r)
@@ -33,7 +33,7 @@ func NewParser(r io.Reader) *Parser {
 				fmt.Printf("latency parse error for '%s': %v", tokens[1], err)
 			}
 
-			p.Next<- LatencyDataPoint{offset, latency}
+			p.Next <- LatencyDataPoint{offset, latency}
 		}
 
 		if err := scanner.Err(); err != nil {

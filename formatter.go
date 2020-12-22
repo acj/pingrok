@@ -18,7 +18,7 @@ func (f Formatter) writeDataAsJSON(dataPoints []LatencyDataPoint, w io.Writer) {
 		var vals = dataPoints[i*f.samplesPerSecond : (i+1)*f.samplesPerSecond]
 		latencies := make([]string, len(vals), len(vals))
 		for j := 0; j < len(vals); j++ {
-			latencies[j] = latencyReportAsJSON(i, j * (1000 / f.samplesPerSecond), dataPoints[i*f.samplesPerSecond + j].Latency)
+			latencies[j] = latencyReportAsJSON(i, j*(1000/f.samplesPerSecond), dataPoints[i*f.samplesPerSecond+j].Latency)
 		}
 		fmt.Fprintf(w, "\t%s", strings.Join(latencies, ","))
 

@@ -21,7 +21,7 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 	router := mux.NewRouter()
 
 	s := &Server{
-		formatter: 	&Formatter{
+		formatter: &Formatter{
 			timeWindow:       timeWindow,
 			samplesPerSecond: samplesPerSecond,
 		},
@@ -29,9 +29,9 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 		httpServer: &http.Server{
 			WriteTimeout: 15 * time.Second,
 			ReadTimeout:  15 * time.Second,
-			Handler: router,
+			Handler:      router,
 		},
-		latencyReportCircularBuffer: NewCircularBuffer(timeWindow*samplesPerSecond),
+		latencyReportCircularBuffer: NewCircularBuffer(timeWindow * samplesPerSecond),
 		timeWindow:                  timeWindow,
 		samplesPerSecond:            samplesPerSecond,
 	}
@@ -70,13 +70,13 @@ func (s *Server) discretizeReplies(in <-chan LatencyDataPoint, out chan<- []Late
 	for r := range in {
 		currentSecond := int(r.TimeOffset)
 		if currentAccumulatorSecondOffset != currentSecond {
-			out<- currentSlice
+			out <- currentSlice
 			currentSlice = make([]LatencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
 			currentAccumulatorSecondOffset = currentSecond
 		}
 
 		currentSubsecondOffset := r.TimeOffset - float64(int(r.TimeOffset))
-		currentSlice[int(currentSubsecondOffset / timeQuantum)] = r
+		currentSlice[int(currentSubsecondOffset/timeQuantum)] = r
 	}
 }
 

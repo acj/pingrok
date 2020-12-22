@@ -6,9 +6,9 @@ import (
 )
 
 type CircularBuffer struct {
-	mux sync.Mutex
-	buf []LatencyDataPoint
-	count int
+	mux           sync.Mutex
+	buf           []LatencyDataPoint
+	count         int
 	currentOffset int
 }
 
