@@ -9,7 +9,7 @@ import (
 )
 
 type Server struct {
-	formatter                   *Formatter
+	formatter                   *JSONFormatter
 	router                      *mux.Router
 	httpServer                  *http.Server
 	latencyReportCircularBuffer *CircularBuffer
@@ -21,7 +21,7 @@ func NewServer(timeWindow int, samplesPerSecond int) *Server {
 	router := mux.NewRouter()
 
 	s := &Server{
-		formatter: &Formatter{
+		formatter: &JSONFormatter{
 			timeWindow:       timeWindow,
 			samplesPerSecond: samplesPerSecond,
 		},

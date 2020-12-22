@@ -91,7 +91,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := &bytes.Buffer{}
 
-			f := Formatter{
+			f := JSONFormatter{
 				timeWindow:       tt.fields.timeWindow,
 				samplesPerSecond: tt.fields.samplesPerSecond,
 			}

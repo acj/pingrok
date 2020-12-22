@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-type Formatter struct {
+type JSONFormatter struct {
 	timeWindow       int
 	samplesPerSecond int
 }
 
-func (f Formatter) writeDataAsJSON(dataPoints []LatencyDataPoint, w io.Writer) {
+func (f JSONFormatter) writeDataAsJSON(dataPoints []LatencyDataPoint, w io.Writer) {
 	fmt.Fprintln(w, "[")
 
 	for i := 0; i < f.timeWindow; i++ {
