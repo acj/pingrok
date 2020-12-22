@@ -11,7 +11,7 @@ type Formatter struct {
 	samplesPerSecond int
 }
 
-func (f Formatter) writeDataAsJSON(dataPoints []LatencyReport, w io.Writer) {
+func (f Formatter) writeDataAsJSON(dataPoints []LatencyDataPoint, w io.Writer) {
 	fmt.Fprintln(w, "[")
 
 	for i := 0; i < f.timeWindow; i++ {

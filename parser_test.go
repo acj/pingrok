@@ -65,7 +65,7 @@ func TestParser_handlesMultipleLines(t *testing.T) {
 	input := "0.050760 7.373\n0.058287 4.277\n0.071051 5.429\n0.078683 3.043"
 	reader := strings.NewReader(input)
 
-	outputs := []LatencyReport{
+	outputs := []LatencyDataPoint{
 		{TimeOffset: 0.050760, Latency: 7.373},
 		{TimeOffset: 0.058287, Latency: 4.277},
 		{TimeOffset: 0.071051, Latency: 5.429},

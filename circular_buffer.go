@@ -7,19 +7,19 @@ import (
 
 type CircularBuffer struct {
 	mux sync.Mutex
-	buf []LatencyReport
+	buf []LatencyDataPoint
 	count int
 	currentOffset int
 }
 
 func NewCircularBuffer(size int) *CircularBuffer {
 	return &CircularBuffer{
-		buf: make([]LatencyReport, size, size),
+		buf: make([]LatencyDataPoint, size, size),
 	}
 }
 
-func (b *CircularBuffer) Snapshot() []LatencyReport {
-	snap := make([]LatencyReport, len(b.buf))
+func (b *CircularBuffer) Snapshot() []LatencyDataPoint {
+	snap := make([]LatencyDataPoint, len(b.buf))
 
 	b.mux.Lock()
 	n := copy(snap[0:b.count-b.currentOffset], b.buf[b.count-(b.count-b.currentOffset):])
@@ -34,7 +34,7 @@ func (b *CircularBuffer) Snapshot() []LatencyReport {
 	return snap
 }
 
-func (b *CircularBuffer) Insert(value LatencyReport) {
+func (b *CircularBuffer) Insert(value LatencyDataPoint) {
 	b.mux.Lock()
 	b.buf[b.currentOffset] = value
 

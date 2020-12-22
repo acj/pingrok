@@ -16,13 +16,13 @@ const protocolICMPIPv4 = 1
 type Pinger struct {
 	connection *icmp.PacketConn
 	quit chan int
-	replies chan LatencyReport
+	replies chan LatencyDataPoint
 	messagesInFlight *pendingEchos
 	startTime time.Time
 	targetHost string
 }
 
-func NewPinger(targetHost string, replies chan LatencyReport) *Pinger {
+func NewPinger(targetHost string, replies chan LatencyDataPoint) *Pinger {
 	return &Pinger{
 		targetHost: targetHost,
 		replies: replies,
@@ -103,7 +103,7 @@ func (p *Pinger) consumer() {
 
 			timeOffset := echoRequestSentTime.Sub(p.startTime).Seconds()
 			latency := float64(candidateReceiptTime.Sub(echoRequestSentTime).Nanoseconds())/1e6
-			p.replies <- LatencyReport{TimeOffset: float64(timeOffset), Latency: float64(latency)}
+			p.replies <- LatencyDataPoint{TimeOffset: float64(timeOffset), Latency: float64(latency)}
 		default:
 			log.Printf("unexpected message from %v: got %+v, want echo reply", peer, rm)
 		}

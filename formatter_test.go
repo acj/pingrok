@@ -13,7 +13,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 		samplesPerSecond int
 	}
 	type args struct {
-		latencyReports []LatencyReport
+		latencyReports []LatencyDataPoint
 	}
 	tests := []struct {
 		name   string
@@ -28,7 +28,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				0,
 			},
 			args{
-				[]LatencyReport{},
+				[]LatencyDataPoint{},
 			},
 			`[]`,
 		},
@@ -39,7 +39,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				10,
 			},
 			args{
-				[]LatencyReport{
+				[]LatencyDataPoint{
 					{TimeOffset: 0.050760, Latency: 7.373},
 					{TimeOffset: 0.125935, Latency: 5.189},
 					{TimeOffset: 0.201725, Latency: 2.886},
@@ -61,7 +61,7 @@ func TestFormatter_writeDataAsJSON(t *testing.T) {
 				10,
 			},
 			args{
-				[]LatencyReport{
+				[]LatencyDataPoint{
 					{TimeOffset: 0.050760, Latency: 7.373},
 					{TimeOffset: 0.125935, Latency: 5.189},
 					{TimeOffset: 0.201725, Latency: 2.886},
