@@ -20,7 +20,7 @@ type config struct {
 	samplesPerSecond          int
 	targetHost                string
 	overlayLatenciesOnHeatmap bool
-	uiBundle                  *UIBundle
+	uiBundle                  *uIBundle
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	uiBundle := prepareUI(*samplesPerSecond, *timeWindowSeconds)
-	partitioner := NewDataPointPartitioner(*timeWindowSeconds, *samplesPerSecond)
+	partitioner := newDataPointPartitioner(*timeWindowSeconds, *samplesPerSecond)
 	config := &config{
 		timeWindowSeconds:         *timeWindowSeconds,
 		samplesPerSecond:          *samplesPerSecond,

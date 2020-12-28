@@ -9,11 +9,11 @@ import (
 
 type controller struct {
 	config      *config
-	partitioner *DataPointPartitioner
-	uiBundle    *UIBundle
+	partitioner *dataPointPartitioner
+	uiBundle    *uIBundle
 }
 
-func newController(config *config, uiBundle *UIBundle, partitioner *DataPointPartitioner) *controller {
+func newController(config *config, uiBundle *uIBundle, partitioner *dataPointPartitioner) *controller {
 	return &controller{
 		config:      config,
 		partitioner: partitioner,
@@ -22,7 +22,7 @@ func newController(config *config, uiBundle *UIBundle, partitioner *DataPointPar
 }
 
 func (c *controller) Run() error {
-	c.partitioner.Start(c.config.targetHost)
+	c.partitioner.start(c.config.targetHost)
 
 	go c.updateUILoop(1 * time.Second)
 
@@ -36,17 +36,17 @@ func (c *controller) updateUILoop(interval time.Duration) {
 			return
 		}
 
-		dataPoint := c.partitioner.Snapshot()[row+col*c.config.samplesPerSecond]
+		dataPoint := c.partitioner.snapshot()[row+col*c.config.samplesPerSecond]
 		c.uiBundle.infoCenterLeftCell.SetText(fmt.Sprintf("Latency: %.02f ms @ Time Offset: %.02f seconds", dataPoint.Latency, dataPoint.TimeOffset))
 	})
 
 	for {
-		applySnapshotToUI(c.partitioner.Snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
+		applySnapshotToUI(c.partitioner.snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
 		time.Sleep(interval)
 	}
 }
 
-func applySnapshotToUI(currentSnapshot []LatencyDataPoint, uiBundle *UIBundle, samplesPerSecond int, timeWindowSeconds int, overlayLatenciesOnHeatmap bool) {
+func applySnapshotToUI(currentSnapshot []LatencyDataPoint, uiBundle *uIBundle, samplesPerSecond int, timeWindowSeconds int, overlayLatenciesOnHeatmap bool) {
 	minLatency := math.MaxFloat64
 	maxLatency := 0.0
 	for _, dataPoint := range currentSnapshot {

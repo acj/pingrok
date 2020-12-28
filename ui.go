@@ -6,14 +6,14 @@ import (
 	"github.com/rivo/tview"
 )
 
-type UIBundle struct {
+type uIBundle struct {
 	app                 *tview.Application
 	heatmap             *tview.Table
 	infoCenterLeftCell  *tview.TableCell
 	infoCenterRightCell *tview.TableCell
 }
 
-func prepareUI(samplesPerSecond, timeWindowSeconds int) *UIBundle {
+func prepareUI(samplesPerSecond, timeWindowSeconds int) *uIBundle {
 	yAxisLabels := tview.NewTable()
 	xAxisLabels := tview.NewTable()
 
@@ -70,7 +70,7 @@ func prepareUI(samplesPerSecond, timeWindowSeconds int) *UIBundle {
 	heatmap.SetCell(samplesPerSecond+1, 0, tview.NewTableCell(""))
 	heatmap.Select(samplesPerSecond+1, 0)
 
-	return &UIBundle{
+	return &uIBundle{
 		app:                 app,
 		heatmap:             heatmap,
 		infoCenterLeftCell:  infoCenterLeftCell,
