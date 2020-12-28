@@ -21,6 +21,7 @@ func main() {
 	var timeWindowSeconds = flag.Int("t", 30, "seconds of data to display")
 	var samplesPerSecond = flag.Int("r", 10, "number of pings per second")
 	var targetHost = flag.String("h", "192.168.1.1", "the host to ping")
+	var overlayLatenciesOnHeatmap = flag.Bool("o", false, "Overlay latencies on heatmap")
 	flag.Parse()
 
 	var currentSnapshot []LatencyDataPoint
@@ -132,7 +133,12 @@ func main() {
 					latencyRange := maxLatency - minLatency
 					scaledRedLevel := int32(((dataPoint.Latency - minLatency) / latencyRange) * 255.0)
 					color := tcell.NewRGBColor(scaledRedLevel, 0, 0)
-					heatmap.GetCell(row, col).SetBackgroundColor(color)
+					currentCell := heatmap.GetCell(row, col)
+					currentCell.SetBackgroundColor(color)
+
+					if *overlayLatenciesOnHeatmap {
+						currentCell.SetText(fmt.Sprintf("%.1f", dataPoint.Latency))
+					}
 
 					haveFullSnapshot = row == *samplesPerSecond - 1 && col == *timeWindowSeconds - 1
 				}
