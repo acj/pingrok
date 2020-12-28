@@ -14,6 +14,9 @@ import (
 // * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
 // * Create an interface that decouples the display engine from ping
 // * Create a generator that oscillates smoothly between 0 and some known latency -- good for end-to-end testing
+// * Error out if the sample rate is greater than the height of the terminal
+// * Rename Server. Sampler?
+// * Add mechanism to stop Server
 
 const placeholderSelectCellText = "Select a cell to view latency and time"
 
@@ -91,14 +94,6 @@ func main() {
 	// Placeholder cell for nothing-is-selected state
 	heatmap.SetCell(*samplesPerSecond + 1, 0, tview.NewTableCell(""))
 	heatmap.Select(*samplesPerSecond + 1, 0)
-
-	// TODO: Handle mouse events
-	// TODO: Handle keyboard events
-	// TODO: Error out if the sample rate is greater than the height of the terminal
-	// TODO: Rename Server. Sampler?
-	// TODO: Add mechanism to stop Server
-	// TODO: Follow the selected data point as time passes
-	// TODO: Show min/max latency?
 
 	pinger := NewServer(*timeWindowSeconds, *samplesPerSecond)
 	pinger.Start(*targetHost)
