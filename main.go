@@ -6,13 +6,6 @@ import (
 	"os"
 )
 
-// TODO:
-// * If we miss a reply, mark it somehow. Black frame? X? Use the cutoff value?
-// * Create an interface that decouples the display engine from ping
-// * Create a generator that oscillates smoothly between 0 and some known latency -- good for end-to-end testing
-// * Error out if the sample rate is greater than the height of the terminal
-// * Add mechanism to stop Server
-
 type config struct {
 	timeWindowSeconds         int
 	samplesPerSecond          int
