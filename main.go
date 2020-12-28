@@ -150,7 +150,9 @@ func main() {
 					}
 				}
 
-				infoCenterRightCell.SetText(fmt.Sprintf("Min: %.02f ms / Max: %.02f ms", minLatency, maxLatency))
+				if minLatency != math.MaxFloat64 {
+					infoCenterRightCell.SetText(fmt.Sprintf("Min: %.02f ms / Max: %.02f ms", minLatency, maxLatency))
+				}
 			})
 
 			time.Sleep(1 * time.Second)
