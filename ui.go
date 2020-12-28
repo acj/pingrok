@@ -6,6 +6,8 @@ import (
 	"github.com/rivo/tview"
 )
 
+const placeholderSelectCellText = "Select a cell to view latency and time"
+
 type uIBundle struct {
 	app                 *tview.Application
 	heatmap             *tview.Table

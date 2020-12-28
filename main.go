@@ -13,8 +13,6 @@ import (
 // * Error out if the sample rate is greater than the height of the terminal
 // * Add mechanism to stop Server
 
-const placeholderSelectCellText = "Select a cell to view latency and time"
-
 type config struct {
 	timeWindowSeconds         int
 	samplesPerSecond          int
