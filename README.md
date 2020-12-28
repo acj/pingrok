@@ -2,8 +2,7 @@
 
 A tool for creating subsecond offset heatmaps for ICMP echo (ping) replies
 
-![subsecond offset heatmap example](https://user-images.githubusercontent.com/27923/65378522-7699d700-dc87-11e9-83fe-b0ebd0c3251d.png)
-
+[![ping-heatmap asciicast demo](https://asciinema.org/a/381549.svg)](https://asciinema.org/a/381549)
 
 ## Building
 
@@ -17,13 +16,10 @@ $ go build
 $ ./ping-heatmap --help
 Usage of ./ping-heatmap:
   -h string
-        the host to ping (default "192.168.1.1")
+    	the host to ping (default "192.168.1.1")
+  -o	Overlay latencies on heatmap
   -r int
-        number of pings per second (default 10)
-  -s string
-        IP and port for web server (default "0.0.0.0:8086")
+    	number of pings per second (default 10)
   -t int
-        seconds of data to display (default 30)
+    	seconds of data to display (default 30)
 ```
-
-Once the program is running, point your browser at http://0.0.0.0:8086 (or whatever you've configured via `-s`).
