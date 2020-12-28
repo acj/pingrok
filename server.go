@@ -21,11 +21,11 @@ func (s *Server) Start(targetHost string) {
 	pinger := NewPinger(targetHost, replies)
 	pinger.Start()
 
-	go s.discretizeReplies(replies, discretizedReplies)
+	go s.partitionRepliesBySecond(replies, discretizedReplies)
 	go s.addToCircularBuffer(discretizedReplies)
 }
 
-func (s *Server) discretizeReplies(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
+func (s *Server) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
 	// Assumption: inbound latencyReports are ordered by time
 	currentAccumulatorSecondOffset := 0
 	timeQuantum := 1.0 / float64(s.samplesPerSecond)
