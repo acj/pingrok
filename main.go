@@ -100,7 +100,7 @@ func main() {
 
 	go func() {
 		for {
-			currentSnapshot = pinger.latencyReportCircularBuffer.Snapshot()
+			currentSnapshot = pinger.Snapshot()
 
 			minLatency := math.MaxFloat64
 			maxLatency := 0.0

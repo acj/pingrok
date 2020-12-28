@@ -25,6 +25,10 @@ func (s *Server) Start(targetHost string) {
 	go s.addToCircularBuffer(discretizedReplies)
 }
 
+func (s *Server) Snapshot() []LatencyDataPoint {
+	return s.latencyReportCircularBuffer.Snapshot()
+}
+
 func (s *Server) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
 	// Assumption: inbound latencyReports are ordered by time
 	currentAccumulatorSecondOffset := 0
