@@ -110,6 +110,10 @@ func main() {
 			minLatency := math.MaxFloat64
 			maxLatency := 0.0
 			for _, dataPoint := range currentSnapshot {
+				if dataPoint.TimeOffset == 0.0 {
+					break
+				}
+
 				if dataPoint.Latency >= maxLatency {
 					maxLatency = dataPoint.Latency
 				}
