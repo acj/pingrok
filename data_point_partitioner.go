@@ -1,20 +1,20 @@
 package main
 
-type Server struct {
+type DataPointPartitioner struct {
 	latencyReportCircularBuffer *CircularBuffer
 	timeWindow                  int
 	samplesPerSecond            int
 }
 
-func NewServer(timeWindow int, samplesPerSecond int) *Server {
-	return &Server{
+func NewDataPointPartitioner(timeWindow int, samplesPerSecond int) *DataPointPartitioner {
+	return &DataPointPartitioner{
 		latencyReportCircularBuffer: NewCircularBuffer(timeWindow * samplesPerSecond),
 		timeWindow:                  timeWindow,
 		samplesPerSecond:            samplesPerSecond,
 	}
 }
 
-func (s *Server) Start(targetHost string) {
+func (s *DataPointPartitioner) Start(targetHost string) {
 	replies := make(chan LatencyDataPoint)
 	discretizedReplies := make(chan []LatencyDataPoint)
 
@@ -25,11 +25,11 @@ func (s *Server) Start(targetHost string) {
 	go s.addToCircularBuffer(discretizedReplies)
 }
 
-func (s *Server) Snapshot() []LatencyDataPoint {
+func (s *DataPointPartitioner) Snapshot() []LatencyDataPoint {
 	return s.latencyReportCircularBuffer.Snapshot()
 }
 
-func (s *Server) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
+func (s *DataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
 	// Assumption: inbound latencyReports are ordered by time
 	currentAccumulatorSecondOffset := 0
 	timeQuantum := 1.0 / float64(s.samplesPerSecond)
@@ -47,7 +47,7 @@ func (s *Server) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<-
 	}
 }
 
-func (s *Server) addToCircularBuffer(replies chan []LatencyDataPoint) {
+func (s *DataPointPartitioner) addToCircularBuffer(replies chan []LatencyDataPoint) {
 	for oneSecondOfData := range replies {
 		for _, r := range oneSecondOfData {
 			s.latencyReportCircularBuffer.Insert(r)
