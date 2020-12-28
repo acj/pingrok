@@ -40,7 +40,7 @@ func main() {
 
 	rootGrid := tview.NewGrid().
 		SetRows(0, 1, 1).
-		SetColumns(10, 0).
+		SetColumns(8, 0).
 		SetBorders(true).
 		AddItem(yAxisLabels, 0, 0, 1, 1, 0, 0, false).
 		AddItem(xAxisLabels, 1, 1, 1, 1, 0, 0, false).
@@ -65,7 +65,8 @@ func main() {
 		offsetMs := int(1000.0 * float64(row) / float64(*samplesPerSecond))
 		cell := tview.NewTableCell(fmt.Sprintf("%d ms", offsetMs)).
 			SetAlign(tview.AlignRight).
-			SetTextColor(tcell.ColorWhite)
+			SetTextColor(tcell.ColorWhite).
+			SetExpansion(1)
 		yAxisLabels.SetCell(row, 0, cell)
 	}
 
@@ -79,7 +80,9 @@ func main() {
 
 	for row := 0; row < *samplesPerSecond; row++ {
 		for col := 0; col < *timeWindowSeconds; col++ {
-			cell := tview.NewTableCell("").SetExpansion(1)
+			cell := tview.NewTableCell("").
+				SetExpansion(1).
+				SetAlign(tview.AlignCenter)
 			heatmap.SetCell(row, col, cell)
 		}
 	}
