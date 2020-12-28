@@ -1,5 +1,7 @@
 # ping-heatmap
 
+![Go](https://github.com/acj/ping-heatmap/workflows/CI/badge.svg)
+
 A tool for creating subsecond offset heatmaps for ICMP echo (ping) replies
 
 ## Demo
