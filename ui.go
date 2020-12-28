@@ -7,9 +7,9 @@ import (
 )
 
 type UIBundle struct {
-	app *tview.Application
-	heatmap *tview.Table
-	infoCenterLeftCell *tview.TableCell
+	app                 *tview.Application
+	heatmap             *tview.Table
+	infoCenterLeftCell  *tview.TableCell
 	infoCenterRightCell *tview.TableCell
 }
 
@@ -67,13 +67,13 @@ func prepareUI(samplesPerSecond, timeWindowSeconds int) *UIBundle {
 	}
 
 	// Placeholder cell for nothing-is-selected state
-	heatmap.SetCell(samplesPerSecond + 1, 0, tview.NewTableCell(""))
-	heatmap.Select(samplesPerSecond + 1, 0)
+	heatmap.SetCell(samplesPerSecond+1, 0, tview.NewTableCell(""))
+	heatmap.Select(samplesPerSecond+1, 0)
 
 	return &UIBundle{
-		app: app,
-		heatmap: heatmap,
-		infoCenterLeftCell: infoCenterLeftCell,
+		app:                 app,
+		heatmap:             heatmap,
+		infoCenterLeftCell:  infoCenterLeftCell,
 		infoCenterRightCell: infoCenterRightCell,
 	}
 }

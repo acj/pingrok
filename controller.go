@@ -8,9 +8,9 @@ import (
 )
 
 type controller struct {
-	config *config
+	config      *config
 	partitioner *DataPointPartitioner
-	uiBundle *UIBundle
+	uiBundle    *UIBundle
 }
 
 func newController(config *config, uiBundle *UIBundle, partitioner *DataPointPartitioner) *controller {
@@ -36,7 +36,7 @@ func (c *controller) updateUILoop(interval time.Duration) {
 			return
 		}
 
-		dataPoint := c.partitioner.Snapshot()[row + col * c.config.samplesPerSecond]
+		dataPoint := c.partitioner.Snapshot()[row+col*c.config.samplesPerSecond]
 		c.uiBundle.infoCenterLeftCell.SetText(fmt.Sprintf("Latency: %.02f ms @ Time Offset: %.02f seconds", dataPoint.Latency, dataPoint.TimeOffset))
 	})
 

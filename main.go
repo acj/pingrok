@@ -16,11 +16,11 @@ import (
 const placeholderSelectCellText = "Select a cell to view latency and time"
 
 type config struct {
-	timeWindowSeconds int
-	samplesPerSecond int
-	targetHost string
+	timeWindowSeconds         int
+	samplesPerSecond          int
+	targetHost                string
 	overlayLatenciesOnHeatmap bool
-	uiBundle *UIBundle
+	uiBundle                  *UIBundle
 }
 
 func main() {
@@ -33,11 +33,11 @@ func main() {
 	uiBundle := prepareUI(*samplesPerSecond, *timeWindowSeconds)
 	partitioner := NewDataPointPartitioner(*timeWindowSeconds, *samplesPerSecond)
 	config := &config{
-		timeWindowSeconds: *timeWindowSeconds,
-		samplesPerSecond: *samplesPerSecond,
-		targetHost: *targetHost,
+		timeWindowSeconds:         *timeWindowSeconds,
+		samplesPerSecond:          *samplesPerSecond,
+		targetHost:                *targetHost,
 		overlayLatenciesOnHeatmap: *overlayLatenciesOnHeatmap,
-		uiBundle: uiBundle,
+		uiBundle:                  uiBundle,
 	}
 
 	controller := newController(config, uiBundle, partitioner)
