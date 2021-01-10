@@ -1,16 +1,16 @@
 package main
 
 type dataPointPartitioner struct {
-	latencyReportCircularBuffer *CircularBuffer
-	timeWindow                  int
-	samplesPerSecond            int
+	dataPointBuffer  *CircularBuffer
+	timeWindow       int
+	samplesPerSecond int
 }
 
 func newDataPointPartitioner(buffer *CircularBuffer, timeWindow int, samplesPerSecond int) *dataPointPartitioner {
 	return &dataPointPartitioner{
-		latencyReportCircularBuffer: buffer,
-		timeWindow:                  timeWindow,
-		samplesPerSecond:            samplesPerSecond,
+		dataPointBuffer:  buffer,
+		timeWindow:       timeWindow,
+		samplesPerSecond: samplesPerSecond,
 	}
 }
 
@@ -22,7 +22,7 @@ func (s *dataPointPartitioner) start(dataPoints <-chan LatencyDataPoint) {
 }
 
 func (s *dataPointPartitioner) snapshot() []LatencyDataPoint {
-	return s.latencyReportCircularBuffer.Snapshot()
+	return s.dataPointBuffer.Snapshot()
 }
 
 func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
@@ -46,7 +46,7 @@ func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoi
 func (s *dataPointPartitioner) addToCircularBuffer(replies chan []LatencyDataPoint) {
 	for oneSecondOfData := range replies {
 		for _, r := range oneSecondOfData {
-			s.latencyReportCircularBuffer.Insert(r)
+			s.dataPointBuffer.Insert(r)
 		}
 	}
 }
