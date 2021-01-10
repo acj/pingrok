@@ -8,14 +8,14 @@ import (
 )
 
 type controller struct {
-	config      *config
-	uiBundle    *uIBundle
+	config   *config
+	uiBundle *uIBundle
 }
 
 func newController(config *config, uiBundle *uIBundle) *controller {
 	return &controller{
-		config:      config,
-		uiBundle:    uiBundle,
+		config:   config,
+		uiBundle: uiBundle,
 	}
 }
 
@@ -28,7 +28,7 @@ func (c *controller) run() error {
 	pinger := newPinger(c.config.targetHost, dataPoints)
 	pinger.start()
 
-	go c.updateUILoop(1 * time.Second, dataPointBuffer)
+	go c.updateUILoop(1*time.Second, dataPointBuffer)
 
 	return c.uiBundle.app.Run()
 }
