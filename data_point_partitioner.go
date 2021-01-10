@@ -26,7 +26,7 @@ func (s *dataPointPartitioner) snapshot() []LatencyDataPoint {
 }
 
 func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
-	// Assumption: inbound latencyReports are ordered by time
+	// Assumption: inbound data points are ordered by time
 	currentAccumulatorSecondOffset := 0
 	timeQuantum := 1.0 / float64(s.samplesPerSecond)
 	currentSlice := make([]LatencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
