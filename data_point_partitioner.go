@@ -6,9 +6,9 @@ type dataPointPartitioner struct {
 	samplesPerSecond            int
 }
 
-func newDataPointPartitioner(timeWindow int, samplesPerSecond int) *dataPointPartitioner {
+func newDataPointPartitioner(buffer *CircularBuffer, timeWindow int, samplesPerSecond int) *dataPointPartitioner {
 	return &dataPointPartitioner{
-		latencyReportCircularBuffer: NewCircularBuffer(timeWindow * samplesPerSecond),
+		latencyReportCircularBuffer: buffer,
 		timeWindow:                  timeWindow,
 		samplesPerSecond:            samplesPerSecond,
 	}

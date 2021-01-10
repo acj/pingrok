@@ -22,7 +22,8 @@ func main() {
 	flag.Parse()
 
 	uiBundle := prepareUI(*samplesPerSecond, *timeWindowSeconds)
-	partitioner := newDataPointPartitioner(*timeWindowSeconds, *samplesPerSecond)
+	dataPointBuffer := NewCircularBuffer(*timeWindowSeconds * *samplesPerSecond)
+	partitioner := newDataPointPartitioner(dataPointBuffer, *timeWindowSeconds, *samplesPerSecond)
 	config := &config{
 		timeWindowSeconds:         *timeWindowSeconds,
 		samplesPerSecond:          *samplesPerSecond,
