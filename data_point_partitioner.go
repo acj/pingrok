@@ -14,15 +14,11 @@ func newDataPointPartitioner(timeWindow int, samplesPerSecond int) *dataPointPar
 	}
 }
 
-func (s *dataPointPartitioner) start(targetHost string) {
-	replies := make(chan LatencyDataPoint)
-	discretizedReplies := make(chan []LatencyDataPoint)
+func (s *dataPointPartitioner) start(dataPoints <-chan LatencyDataPoint) {
+	dataPointsBinnedBySecond := make(chan []LatencyDataPoint)
 
-	pinger := NewPinger(targetHost, replies)
-	pinger.Start()
-
-	go s.partitionRepliesBySecond(replies, discretizedReplies)
-	go s.addToCircularBuffer(discretizedReplies)
+	go s.partitionRepliesBySecond(dataPoints, dataPointsBinnedBySecond)
+	go s.addToCircularBuffer(dataPointsBinnedBySecond)
 }
 
 func (s *dataPointPartitioner) snapshot() []LatencyDataPoint {

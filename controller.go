@@ -22,7 +22,12 @@ func newController(config *config, uiBundle *uIBundle, partitioner *dataPointPar
 }
 
 func (c *controller) Run() error {
-	c.partitioner.start(c.config.targetHost)
+	dataPoints := make(chan LatencyDataPoint)
+
+	c.partitioner.start(dataPoints)
+
+	pinger := NewPinger(c.config.targetHost, dataPoints)
+	pinger.Start()
 
 	go c.updateUILoop(1 * time.Second)
 
