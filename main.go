@@ -31,7 +31,7 @@ func main() {
 	}
 
 	controller := newController(config, uiBundle)
-	if err := controller.Run(); err != nil {
+	if err := controller.run(); err != nil {
 		fmt.Printf("error: %s", err)
 		os.Exit(1)
 	}

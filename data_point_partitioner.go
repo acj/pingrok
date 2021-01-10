@@ -1,12 +1,12 @@
 package main
 
 type dataPointPartitioner struct {
-	dataPointBuffer  *CircularBuffer
+	dataPointBuffer  *circularBuffer
 	timeWindow       int
 	samplesPerSecond int
 }
 
-func newDataPointPartitioner(buffer *CircularBuffer, timeWindow int, samplesPerSecond int) *dataPointPartitioner {
+func newDataPointPartitioner(buffer *circularBuffer, timeWindow int, samplesPerSecond int) *dataPointPartitioner {
 	return &dataPointPartitioner{
 		dataPointBuffer:  buffer,
 		timeWindow:       timeWindow,
@@ -14,35 +14,35 @@ func newDataPointPartitioner(buffer *CircularBuffer, timeWindow int, samplesPerS
 	}
 }
 
-func (s *dataPointPartitioner) start(dataPoints <-chan LatencyDataPoint) {
-	dataPointsBinnedBySecond := make(chan []LatencyDataPoint)
+func (s *dataPointPartitioner) start(dataPoints <-chan latencyDataPoint) {
+	dataPointsBinnedBySecond := make(chan []latencyDataPoint)
 
 	go s.partitionRepliesBySecond(dataPoints, dataPointsBinnedBySecond)
 	go s.addToCircularBuffer(dataPointsBinnedBySecond)
 }
 
-func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
+func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan latencyDataPoint, out chan<- []latencyDataPoint) {
 	// Assumption: inbound data points are ordered by time
 	currentAccumulatorSecondOffset := 0
 	timeQuantum := 1.0 / float64(s.samplesPerSecond)
-	currentSlice := make([]LatencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
+	currentSlice := make([]latencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
 	for r := range in {
-		currentSecond := int(r.TimeOffset)
+		currentSecond := int(r.timeOffset)
 		if currentAccumulatorSecondOffset != currentSecond {
 			out <- currentSlice
-			currentSlice = make([]LatencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
+			currentSlice = make([]latencyDataPoint, s.samplesPerSecond, s.samplesPerSecond)
 			currentAccumulatorSecondOffset = currentSecond
 		}
 
-		currentSubsecondOffset := r.TimeOffset - float64(int(r.TimeOffset))
+		currentSubsecondOffset := r.timeOffset - float64(int(r.timeOffset))
 		currentSlice[int(currentSubsecondOffset/timeQuantum)] = r
 	}
 }
 
-func (s *dataPointPartitioner) addToCircularBuffer(replies chan []LatencyDataPoint) {
+func (s *dataPointPartitioner) addToCircularBuffer(replies chan []latencyDataPoint) {
 	for oneSecondOfData := range replies {
 		for _, r := range oneSecondOfData {
-			s.dataPointBuffer.Insert(r)
+			s.dataPointBuffer.insert(r)
 		}
 	}
 }

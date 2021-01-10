@@ -19,50 +19,50 @@ func newController(config *config, uiBundle *uIBundle) *controller {
 	}
 }
 
-func (c *controller) Run() error {
-	dataPointBuffer := NewCircularBuffer(c.config.timeWindowSeconds * c.config.samplesPerSecond)
+func (c *controller) run() error {
+	dataPointBuffer := newCircularBuffer(c.config.timeWindowSeconds * c.config.samplesPerSecond)
 	partitioner := newDataPointPartitioner(dataPointBuffer, c.config.timeWindowSeconds, c.config.samplesPerSecond)
-	dataPoints := make(chan LatencyDataPoint)
+	dataPoints := make(chan latencyDataPoint)
 
 	partitioner.start(dataPoints)
-	pinger := NewPinger(c.config.targetHost, dataPoints)
-	pinger.Start()
+	pinger := newPinger(c.config.targetHost, dataPoints)
+	pinger.start()
 
 	go c.updateUILoop(1 * time.Second, dataPointBuffer)
 
 	return c.uiBundle.app.Run()
 }
 
-func (c *controller) updateUILoop(interval time.Duration, dataPointBuffer *CircularBuffer) {
+func (c *controller) updateUILoop(interval time.Duration, dataPointBuffer *circularBuffer) {
 	c.uiBundle.heatmap.SetSelectionChangedFunc(func(row, col int) {
 		if row > c.config.samplesPerSecond || col > c.config.timeWindowSeconds {
 			c.uiBundle.infoCenterLeftCell.SetText(placeholderSelectCellText)
 			return
 		}
 
-		dataPoint := dataPointBuffer.Snapshot()[row+col*c.config.samplesPerSecond]
-		c.uiBundle.infoCenterLeftCell.SetText(fmt.Sprintf("Latency: %.02f ms @ Time Offset: %.02f seconds", dataPoint.Latency, dataPoint.TimeOffset))
+		dataPoint := dataPointBuffer.snapshot()[row+col*c.config.samplesPerSecond]
+		c.uiBundle.infoCenterLeftCell.SetText(fmt.Sprintf("latency: %.02f ms @ Time Offset: %.02f seconds", dataPoint.latency, dataPoint.timeOffset))
 	})
 
 	for {
-		applySnapshotToUI(dataPointBuffer.Snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
+		applySnapshotToUI(dataPointBuffer.snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
 		time.Sleep(interval)
 	}
 }
 
-func applySnapshotToUI(currentSnapshot []LatencyDataPoint, uiBundle *uIBundle, samplesPerSecond int, timeWindowSeconds int, overlayLatenciesOnHeatmap bool) {
+func applySnapshotToUI(currentSnapshot []latencyDataPoint, uiBundle *uIBundle, samplesPerSecond int, timeWindowSeconds int, overlayLatenciesOnHeatmap bool) {
 	minLatency := math.MaxFloat64
 	maxLatency := 0.0
 	for _, dataPoint := range currentSnapshot {
-		if dataPoint.TimeOffset == 0.0 {
+		if dataPoint.timeOffset == 0.0 {
 			break
 		}
 
-		if dataPoint.Latency >= maxLatency {
-			maxLatency = dataPoint.Latency
+		if dataPoint.latency >= maxLatency {
+			maxLatency = dataPoint.latency
 		}
-		if dataPoint.Latency <= minLatency {
-			minLatency = dataPoint.Latency
+		if dataPoint.latency <= minLatency {
+			minLatency = dataPoint.latency
 		}
 	}
 
@@ -74,18 +74,18 @@ func applySnapshotToUI(currentSnapshot []LatencyDataPoint, uiBundle *uIBundle, s
 			row := idx % samplesPerSecond
 			col := idx / samplesPerSecond
 
-			if dataPoint.TimeOffset == 0.0 {
+			if dataPoint.timeOffset == 0.0 {
 				continue
 			}
 
 			latencyRange := maxLatency - minLatency
-			scaledRedLevel := int32(((dataPoint.Latency - minLatency) / latencyRange) * 255.0)
+			scaledRedLevel := int32(((dataPoint.latency - minLatency) / latencyRange) * 255.0)
 			color := tcell.NewRGBColor(scaledRedLevel, 0, 0)
 			currentCell := uiBundle.heatmap.GetCell(row, col)
 			currentCell.SetBackgroundColor(color)
 
 			if overlayLatenciesOnHeatmap {
-				currentCell.SetText(fmt.Sprintf("%.1f", dataPoint.Latency))
+				currentCell.SetText(fmt.Sprintf("%.1f", dataPoint.latency))
 			}
 
 			haveFullSnapshot = row == samplesPerSecond-1 && col == timeWindowSeconds-1

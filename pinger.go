@@ -13,23 +13,23 @@ import (
 
 const protocolICMPIPv4 = 1
 
-type Pinger struct {
+type pinger struct {
 	connection       *icmp.PacketConn
 	quit             chan int
-	replies          chan LatencyDataPoint
+	dataPoints       chan latencyDataPoint
 	messagesInFlight *pendingEchos
 	startTime        time.Time
 	targetHost       string
 }
 
-func NewPinger(targetHost string, replies chan LatencyDataPoint) *Pinger {
-	return &Pinger{
+func newPinger(targetHost string, dataPoints chan latencyDataPoint) *pinger {
+	return &pinger{
 		targetHost: targetHost,
-		replies:    replies,
+		dataPoints: dataPoints,
 	}
 }
 
-func (p *Pinger) Start() {
+func (p *pinger) start() {
 	p.quit = make(chan int)
 	p.messagesInFlight = newPendingEchoes()
 	p.startTime = time.Now()
@@ -44,12 +44,12 @@ func (p *Pinger) Start() {
 	go p.producer(p.targetHost, 10*time.Millisecond)
 }
 
-func (p *Pinger) Stop() {
+func (p *pinger) stop() {
 	close(p.quit)
 	p.connection.Close()
 }
 
-func (p *Pinger) producer(destinationIP string, interval time.Duration) {
+func (p *pinger) producer(destinationIP string, interval time.Duration) {
 	body := &icmp.Echo{
 		ID:   os.Getpid() & 0xffff,
 		Seq:  0,
@@ -67,7 +67,7 @@ func (p *Pinger) producer(destinationIP string, interval time.Duration) {
 			log.Fatal(err)
 		}
 
-		p.messagesInFlight.Start(body.Seq)
+		p.messagesInFlight.start(body.Seq)
 		if _, err := p.connection.WriteTo(wb, &net.UDPAddr{IP: net.ParseIP(destinationIP)}); err != nil {
 			log.Printf("error sending echo request: %v", err)
 		}
@@ -77,7 +77,7 @@ func (p *Pinger) producer(destinationIP string, interval time.Duration) {
 	}
 }
 
-func (p *Pinger) consumer() {
+func (p *pinger) consumer() {
 	rb := make([]byte, 1500)
 
 	for {
@@ -95,7 +95,7 @@ func (p *Pinger) consumer() {
 		case ipv4.ICMPTypeEchoReply:
 			echoReply := rm.Body.(*icmp.Echo)
 
-			echoRequestSentTime, ok := p.messagesInFlight.Resolve(echoReply.Seq)
+			echoRequestSentTime, ok := p.messagesInFlight.resolve(echoReply.Seq)
 			if !ok {
 				log.Printf("unexpected message #%d, sent at %v", echoReply.Seq, echoRequestSentTime)
 				continue
@@ -103,7 +103,7 @@ func (p *Pinger) consumer() {
 
 			timeOffset := echoRequestSentTime.Sub(p.startTime).Seconds()
 			latency := float64(candidateReceiptTime.Sub(echoRequestSentTime).Nanoseconds()) / 1e6
-			p.replies <- LatencyDataPoint{TimeOffset: float64(timeOffset), Latency: float64(latency)}
+			p.dataPoints <- latencyDataPoint{timeOffset: float64(timeOffset), latency: float64(latency)}
 		default:
 			log.Printf("unexpected message from %v: got %+v, want echo reply", peer, rm)
 		}
@@ -121,13 +121,13 @@ func newPendingEchoes() *pendingEchos {
 	}
 }
 
-func (mt *pendingEchos) Start(sequenceNumber int) {
+func (mt *pendingEchos) start(sequenceNumber int) {
 	mt.mux.Lock()
 	mt.times[sequenceNumber] = time.Now()
 	mt.mux.Unlock()
 }
 
-func (mt *pendingEchos) Resolve(sequenceNumber int) (time.Time, bool) {
+func (mt *pendingEchos) resolve(sequenceNumber int) (time.Time, bool) {
 	mt.mux.Lock()
 	defer mt.mux.Unlock()
 
