@@ -22,8 +22,6 @@ func main() {
 	flag.Parse()
 
 	uiBundle := prepareUI(*samplesPerSecond, *timeWindowSeconds)
-	dataPointBuffer := NewCircularBuffer(*timeWindowSeconds * *samplesPerSecond)
-	partitioner := newDataPointPartitioner(dataPointBuffer, *timeWindowSeconds, *samplesPerSecond)
 	config := &config{
 		timeWindowSeconds:         *timeWindowSeconds,
 		samplesPerSecond:          *samplesPerSecond,
@@ -32,7 +30,7 @@ func main() {
 		uiBundle:                  uiBundle,
 	}
 
-	controller := newController(config, uiBundle, partitioner)
+	controller := newController(config, uiBundle)
 	if err := controller.Run(); err != nil {
 		fmt.Printf("error: %s", err)
 		os.Exit(1)

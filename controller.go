@@ -9,44 +9,43 @@ import (
 
 type controller struct {
 	config      *config
-	partitioner *dataPointPartitioner
 	uiBundle    *uIBundle
 }
 
-func newController(config *config, uiBundle *uIBundle, partitioner *dataPointPartitioner) *controller {
+func newController(config *config, uiBundle *uIBundle) *controller {
 	return &controller{
 		config:      config,
-		partitioner: partitioner,
 		uiBundle:    uiBundle,
 	}
 }
 
 func (c *controller) Run() error {
+	dataPointBuffer := NewCircularBuffer(c.config.timeWindowSeconds * c.config.samplesPerSecond)
+	partitioner := newDataPointPartitioner(dataPointBuffer, c.config.timeWindowSeconds, c.config.samplesPerSecond)
 	dataPoints := make(chan LatencyDataPoint)
 
-	c.partitioner.start(dataPoints)
-
+	partitioner.start(dataPoints)
 	pinger := NewPinger(c.config.targetHost, dataPoints)
 	pinger.Start()
 
-	go c.updateUILoop(1 * time.Second)
+	go c.updateUILoop(1 * time.Second, dataPointBuffer)
 
 	return c.uiBundle.app.Run()
 }
 
-func (c *controller) updateUILoop(interval time.Duration) {
+func (c *controller) updateUILoop(interval time.Duration, dataPointBuffer *CircularBuffer) {
 	c.uiBundle.heatmap.SetSelectionChangedFunc(func(row, col int) {
 		if row > c.config.samplesPerSecond || col > c.config.timeWindowSeconds {
 			c.uiBundle.infoCenterLeftCell.SetText(placeholderSelectCellText)
 			return
 		}
 
-		dataPoint := c.partitioner.snapshot()[row+col*c.config.samplesPerSecond]
+		dataPoint := dataPointBuffer.Snapshot()[row+col*c.config.samplesPerSecond]
 		c.uiBundle.infoCenterLeftCell.SetText(fmt.Sprintf("Latency: %.02f ms @ Time Offset: %.02f seconds", dataPoint.Latency, dataPoint.TimeOffset))
 	})
 
 	for {
-		applySnapshotToUI(c.partitioner.snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
+		applySnapshotToUI(dataPointBuffer.Snapshot(), c.uiBundle, c.config.samplesPerSecond, c.config.timeWindowSeconds, c.config.overlayLatenciesOnHeatmap)
 		time.Sleep(interval)
 	}
 }

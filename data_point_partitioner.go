@@ -21,10 +21,6 @@ func (s *dataPointPartitioner) start(dataPoints <-chan LatencyDataPoint) {
 	go s.addToCircularBuffer(dataPointsBinnedBySecond)
 }
 
-func (s *dataPointPartitioner) snapshot() []LatencyDataPoint {
-	return s.dataPointBuffer.Snapshot()
-}
-
 func (s *dataPointPartitioner) partitionRepliesBySecond(in <-chan LatencyDataPoint, out chan<- []LatencyDataPoint) {
 	// Assumption: inbound data points are ordered by time
 	currentAccumulatorSecondOffset := 0
