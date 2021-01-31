@@ -1,12 +1,12 @@
-# ping-heatmap
+# pingrok
 
-![Go](https://github.com/acj/ping-heatmap/workflows/CI/badge.svg)
+![Go](https://github.com/acj/pingrok/workflows/CI/badge.svg)
 
 A tool for creating subsecond offset heatmaps for ICMP echo (ping) replies
 
 ## Demo
 
-[![ping-heatmap asciicast demo](https://asciinema.org/a/381549.svg)](https://asciinema.org/a/381549)
+[![pingrok asciicast demo](https://asciinema.org/a/381549.svg)](https://asciinema.org/a/381549)
 
 ## Why
 
@@ -23,7 +23,7 @@ Visually, it's important to understand that _both_ axes are displaying time. The
 If you have the Go toolchain installed, `go get` should work:
 
 ```
-go get -u github.com/acj/ping-heatmap
+go get -u github.com/acj/pingrok
 ```
 
 ## Building from source
@@ -43,8 +43,8 @@ go test ./...
 ## Usage
 
 ```
-$ ./ping-heatmap --help
-Usage of ./ping-heatmap:
+$ ./pingrok --help
+Usage of ./pingrok:
   -h string
     	the host to ping (default "192.168.1.1")
   -o	Overlay latencies on heatmap

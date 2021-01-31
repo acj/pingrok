@@ -1,4 +1,4 @@
-module github.com/acj/ping-heatmap
+module github.com/acj/pingrok
 
 go 1.12
 
