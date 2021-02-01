@@ -15,4 +15,5 @@
 # vendor/
 
 .idea
-ping-heatmap
+pingrok
+pingrok.log
