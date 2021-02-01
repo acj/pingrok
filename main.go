@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -18,8 +19,17 @@ func main() {
 	var timeWindowSeconds = flag.Int("t", 30, "seconds of data to display")
 	var samplesPerSecond = flag.Int("r", 10, "number of pings per second")
 	var targetHost = flag.String("h", "192.168.1.1", "the host to ping")
-	var overlayLatenciesOnHeatmap = flag.Bool("o", false, "Overlay latencies on heatmap")
+	var overlayLatenciesOnHeatmap = flag.Bool("o", false, "Overlay latency numbers on heatmap")
+	var logFilePath = flag.String("l", "pingrok.log", "Log file path")
 	flag.Parse()
+
+	logFile, err := os.OpenFile(*logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("error opening log file: %s", err)
+		os.Exit(1)
+	}
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetOutput(logFile)
 
 	uiBundle := prepareUI(*samplesPerSecond, *timeWindowSeconds)
 	config := &config{

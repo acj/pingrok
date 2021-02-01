@@ -46,10 +46,12 @@ go test ./...
 $ ./pingrok --help
 Usage of ./pingrok:
   -h string
-    	the host to ping (default "192.168.1.1")
-  -o	Overlay latencies on heatmap
+        the host to ping (default "192.168.1.1")
+  -l string
+        Log file path (default "pingrok.log")
+  -o    Overlay latency numbers on heatmap
   -r int
-    	number of pings per second (default 10)
+        number of pings per second (default 10)
   -t int
-    	seconds of data to display (default 30)
+        seconds of data to display (default 30)
 ```
