@@ -103,7 +103,7 @@ func (p *pinger) consumer() {
 
 			timeOffset := echoRequestSentTime.Sub(p.startTime).Seconds()
 			latency := float64(candidateReceiptTime.Sub(echoRequestSentTime).Nanoseconds()) / 1e6
-			p.dataPoints <- latencyDataPoint{timeOffset: float64(timeOffset), latency: float64(latency)}
+			p.dataPoints <- latencyDataPoint{timeOffset: timeOffset, latency: latency}
 		default:
 			log.Printf("unexpected message from %v: got %+v, want echo reply", peer, rm)
 		}
