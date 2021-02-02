@@ -40,6 +40,15 @@ and optionally:
 go test ./...
 ```
 
+## Building and running with Docker
+
+This has been tested on a Linux host but may have issues in other environments like Docker for Mac.
+
+```
+sudo docker build -f docker/Dockerfile -t pingrok .
+sudo docker run --network=host --rm -it pingrok [options]
+```
+
 ## Usage
 
 ```
