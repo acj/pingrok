@@ -7,5 +7,5 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/tview v0.0.0-20231126152417-33a1d271f2b6
 	github.com/rivo/uniseg v0.4.4 // indirect
-	golang.org/x/net v0.19.0
+	golang.org/x/net v0.23.0
 )
